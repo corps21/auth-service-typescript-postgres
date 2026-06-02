@@ -9,7 +9,7 @@ export class ApiResponse<T> {
         this.data = data
     }
 
-    static ok(message: string, data: unknown) {
+    static ok(message: string, data?: unknown) {
         return new ApiResponse(message, 200, data)
     }
 

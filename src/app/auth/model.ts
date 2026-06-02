@@ -15,3 +15,18 @@ export const loginUserPayloadSchema = z.object({
 })
 
 export type loginUserPayload = z.infer<typeof loginUserPayloadSchema>
+
+export const responseUserSchema = z.object({
+    id: z.string().nonoptional(),
+    firstName: z.string().nonoptional(),
+    lastName: z.string().nonoptional(),
+    email: z.string().nonoptional()
+})
+
+export type responseUser = z.infer<typeof responseUserSchema>
+
+export const logoutUserPayloadSchema = z.object({
+    user: responseUserSchema
+})
+
+export type logoutUserPayload = z.infer<typeof logoutUserPayloadSchema>

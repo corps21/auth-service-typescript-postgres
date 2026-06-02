@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
-import { loginUserPayloadSchema, registerUserPayloadSchema } from "./model.js";
-import { ApiError } from "../../common/utils/api.error.js";
+import { loginUserPayloadSchema, registerUserPayloadSchema, logoutUserPayloadSchema, responseUserSchema, type responseUser } from "./model.js";
 import { AuthService } from "./service.js";
 import { ApiResponse } from "../../common/utils/api.response.js";
 import { validateSchema } from "../../common/utils/validateSchema.js";
@@ -25,5 +24,14 @@ export class AuthController {
         const user = await loginUser(payload)
 
         return res.status(201).json(ApiResponse.ok("Successfully logged in user", {user}))
+    }
+
+    async logoutUser(req:Request, res:Response) {
+        // @ts-ignore
+        const payload = await validateSchema(responseUserSchema, req.user)
+        const logoutUser = authService.logoutUser.bind(authService)
+        await logoutUser(payload)
+        
+        return res.status(200).json(ApiResponse.ok("Successfully logged out user"))
     }
 }

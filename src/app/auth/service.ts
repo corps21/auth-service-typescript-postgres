@@ -4,7 +4,7 @@ import { db } from "../../db/index.js";
 import { userTable } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
 import { createHmac, randomBytes } from "node:crypto";
-import type { registerUserPayload, loginUserPayload } from "./model.js";
+import type { registerUserPayload, loginUserPayload, responseUser } from "./model.js";
 import { publicUserColumnsWithPasswordAndSalt } from "./utils/columns.js";
 import { generateToken } from "../../common/utils/jwt.js";
 import "dotenv/config"
@@ -60,5 +60,11 @@ export class AuthService {
         await db.update(userTable).set({refreshTokenHash: hashedRefreshToken}).where(eq(userTable.id, safeUser.id))
 
         return {user: safeUser, accessToken, refreshToken}
+    }
+
+    async logoutUser(payload: responseUser) {
+        const user = payload
+        await db.update(userTable).set({refreshTokenHash: null}).where(eq(userTable.id, user.id))
+        return true;
     }
 }
