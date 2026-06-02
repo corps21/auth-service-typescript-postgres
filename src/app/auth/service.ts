@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm";
 import { createHmac, randomBytes } from "node:crypto";
 import type { registerUserPayload, loginUserPayload } from "./model.js";
 import { publicUserColumnsWithPasswordAndSalt } from "./utils/columns.js";
+import { generateToken } from "../../common/utils/jwt.js";
+import "dotenv/config"
 
 export class AuthService {
     async registerUser(payload: registerUserPayload) {
@@ -41,8 +43,22 @@ export class AuthService {
         const hashedGivenPassword = createHmac("sha256", salt!).update(password).digest("hex")
         if(hashedGivenPassword !== userPassword) throw ApiError.unauthorized("User or password is incorrect")
         
-        // generate token
+        const accessToken = generateToken({
+            id: safeUser.id,
+            email: safeUser.email,
+            firstName: safeUser.firstName,
+            lastName: safeUser.lastName
+            // @ts-ignore
+        }, { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY! })
 
-        return safeUser;
+        const refreshToken = generateToken({
+            id: safeUser.id
+            // @ts-ignore
+        }, {expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY!})
+
+        const hashedRefreshToken = createHmac("sha256", salt!).update(refreshToken).digest("hex")
+        await db.update(userTable).set({refreshTokenHash: hashedRefreshToken}).where(eq(userTable.id, safeUser.id))
+
+        return {user: safeUser, accessToken, refreshToken}
     }
 }
