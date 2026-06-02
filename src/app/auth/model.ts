@@ -8,3 +8,10 @@ export const registerUserPayloadSchema = z.object({
 })
 
 export type registerUserPayload = z.infer<typeof registerUserPayloadSchema>
+
+export const loginUserPayloadSchema = z.object({
+    email: z.email().nonoptional(),
+    password: z.string().min(8).nonoptional()
+})
+
+export type loginUserPayload = z.infer<typeof loginUserPayloadSchema>

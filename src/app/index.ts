@@ -7,6 +7,7 @@ export function createExpressServer():Express  {
 
     // Middleware
     app.use(express.json())
+    app.use(express.urlencoded({extended:true}))
 
     // Routes
     app.use("/api/v1/auth", authRouter)

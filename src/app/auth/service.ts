@@ -4,7 +4,8 @@ import { db } from "../../db/index.js";
 import { userTable } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
 import { createHmac, randomBytes } from "node:crypto";
-import type { registerUserPayload } from "./model.js";
+import type { registerUserPayload, loginUserPayload } from "./model.js";
+import { publicUserColumnsWithPasswordAndSalt } from "./utils/columns.js";
 
 export class AuthService {
     async registerUser(payload: registerUserPayload) {
@@ -28,5 +29,20 @@ export class AuthService {
         if(!user) throw new ApiError("Something went wrong while signing user")
 
         return user
+    }
+
+    async loginUser(payload: loginUserPayload) {
+        const {email, password} = payload
+        const [user] = await db.select(publicUserColumnsWithPasswordAndSalt).from(userTable).where(eq(userTable.email, email))
+        if(!user) throw ApiError.nonFound("User doesn't exists")
+
+        const {password: userPassword, salt, ...safeUser} = user
+
+        const hashedGivenPassword = createHmac("sha256", salt!).update(password).digest("hex")
+        if(hashedGivenPassword !== userPassword) throw ApiError.unauthorized("User or password is incorrect")
+        
+        // generate token
+
+        return safeUser;
     }
 }
