@@ -35,7 +35,10 @@ export const serviceDiscoverySchema = z.object({
     issuer: z.url().nonoptional(),
     authorization_endpoint: z.url().nonoptional(),
     userinfo_endpoint: z.url().nonoptional(),
-    jwks_uri: z.string().nonoptional()
+    jwks_uri: z.object({
+        alg: z.string().nonoptional(),
+        n: z.string().nonoptional(),
+    })
 })
 
 export type serviceDiscovery = z.infer<typeof serviceDiscoverySchema>

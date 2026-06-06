@@ -1,9 +1,11 @@
 import jwt, { type SignOptions, type VerifyOptions } from "jsonwebtoken"
 import "dotenv/config"
+import fs from "node:fs/promises"
 
 export function generateToken<T extends Object>(payload:T, options?:SignOptions) {
     try {
-        return jwt.sign(payload, process.env.JWT_SECRET!, options)
+        // const privateKey = await fs.readFile(process.env.PRIVATE_KEY_PATH!, "utf8")
+        return jwt.sign(payload, process.env.JWT_PRIVATE_KEY!, options)
     } catch (error: unknown) {
         if (error instanceof Error) {
             throw error
@@ -14,7 +16,8 @@ export function generateToken<T extends Object>(payload:T, options?:SignOptions)
 
 export function verifyToken(token:string, options?: VerifyOptions) {
     try {
-        return jwt.verify(token, process.env.JWT_SECRET!, options)
+        // const publicKey = await fs.readFile(process.env.PUBLIC_KEY_PATH!, "utf8")
+        return jwt.verify(token, process.env.JWT_PUBLIC_KEY!, options)
     } catch (error: unknown) {
         if (error instanceof Error) {
             throw error

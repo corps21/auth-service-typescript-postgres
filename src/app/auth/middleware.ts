@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../../common/utils/jwt.js";
 import { ApiError } from "../../common/utils/api.error.js";
-import type { responseUser } from "./model.js";
 
 export const authenticateUser = (req:Request, res:Response, next:NextFunction) => {
     if(!req.headers?.authorization || !req.headers?.authorization?.startsWith("Bearer")) {
@@ -14,12 +13,12 @@ export const authenticateUser = (req:Request, res:Response, next:NextFunction) =
         return next()
     }
     
-    const decodedToken = verifyToken(token)
+    const decodedToken = verifyToken(token, {algorithms: ["RS256"]})
 
     // @ts-ignore
     const {iat, exp, ...user} = decodedToken
     // @ts-ignore
-    req.user = user as responseUser
+    req.user = user
     next()
 }
 
