@@ -30,3 +30,12 @@ export const logoutUserPayloadSchema = z.object({
 })
 
 export type logoutUserPayload = z.infer<typeof logoutUserPayloadSchema>
+
+export const serviceDiscoverySchema = z.object({
+    issuer: z.url().nonoptional(),
+    authorization_endpoint: z.url().nonoptional(),
+    userinfo_endpoint: z.url().nonoptional(),
+    jwks_uri: z.string().nonoptional()
+})
+
+export type serviceDiscovery = z.infer<typeof serviceDiscoverySchema>

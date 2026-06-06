@@ -34,4 +34,18 @@ export class AuthController {
         
         return res.status(200).json(ApiResponse.ok("Successfully logged out user"))
     }
+
+    async getUser(req:Request, res:Response) {
+        // @ts-ignore
+        const payload = await validateSchema(responseUserSchema, req.user)
+        const getUser = authService.getUser.bind(authService)
+        const user = await getUser(payload)
+        return res.status(200).json(ApiResponse.ok("Successfully fetched user", {user}))
+    }
+
+    serviceDiscovery(_req: Request, res: Response) {
+        const getServiceDiscovery = authService.serviceDiscovery.bind(authService)
+        const serviceDiscoveryInfo = getServiceDiscovery()
+        res.status(200).json(ApiResponse.ok("Service Discovery Info", serviceDiscoveryInfo))
+    }
 }

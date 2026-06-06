@@ -4,8 +4,8 @@ import { db } from "../../db/index.js";
 import { userTable } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
 import { createHmac, randomBytes } from "node:crypto";
-import type { registerUserPayload, loginUserPayload, responseUser } from "./model.js";
-import { publicUserColumnsWithPasswordAndSalt } from "./utils/columns.js";
+import type { registerUserPayload, loginUserPayload, responseUser, serviceDiscovery } from "./model.js";
+import { publicUserColumnsWithPasswordAndSalt, publicUserColumns } from "./utils/columns.js";
 import { generateToken } from "../../common/utils/jwt.js";
 import "dotenv/config"
 
@@ -66,5 +66,21 @@ export class AuthService {
         const user = payload
         await db.update(userTable).set({refreshTokenHash: null}).where(eq(userTable.id, user.id))
         return true;
+    }
+
+    async getUser(payload: responseUser) {
+        const user = payload
+        const [userFromDb] = await db.select(publicUserColumns).from(userTable).where(eq(userTable.id, user.id))
+        if(!userFromDb) throw ApiError.nonFound("User doesn't exists")
+        return userFromDb
+    }
+
+    serviceDiscovery(): serviceDiscovery {
+        return {
+            issuer: process.env.DOMAIN!,
+            authorization_endpoint: `${process.env.DOMAIN}:${process.env.PORT}/api/v1/auth/log-in`,
+            userinfo_endpoint: `${process.env.DOMAIN}:${process.env.PORT}/api/v1/auth/me`,
+            jwks_uri: process.env.PUBLIC_KEY!
+        }
     }
 }
